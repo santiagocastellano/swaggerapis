@@ -1,259 +1,87 @@
 {
   "openapi" : "3.0.0",
   "info" : {
-    "title" : "USIG -  Recorridos",
-    "description" : "Calculo de recorrido entre dos puntos dados.",
-    "contact" : {
-      "email" : "you@your-company.com"
-    },
+    "title" : "USIG - Recorridos",
+    "description" : "Calculador de recorridos",
     "license" : {
       "name" : "Apache 2.0",
       "url" : "http://www.apache.org/licenses/LICENSE-2.0.html"
     },
-    "version" : "1.0.0"
+    "version" : "2.0"
   },
   "servers" : [ {
-    "url" : "https://virtserver.swaggerhub.com/usi3/recorridos/1.0.0",
-    "description" : "SwaggerHub API Auto Mocking"
-  }, {
     "url" : "https://recorridos.usig.buenosaires.gob.ar/2.0/consultar_gba",
     "description" : "Servicio general"
   } ],
+  "tags" : [ {
+    "name" : "Desarrollo"
+  } ],
   "paths" : {
-    "/" : {
+    "/geocoding" : {
       "get" : {
-        "tags" : [ "Desarrolladores" ],
-        "description" : "Calculador de recorridos entre dos puntos dados.\n",
+        "tags" : [ "Desarrollo" ],
+        "description" : "Geocodificador con diferentes posibilidades de procesamiento. Ejemplo - cod_calle=3001&altura=5790 // \ncod_calle=CABILDO AV.&altura=1234 // cod_calle=CABILDO%20AV.&altura=1234&metodo=centroide // cod_calle1=3030&cod_calle2=20057 // cod_calle1=callao av.&cod_calle2=santa fe av.\n",
         "operationId" : "geocoding",
         "parameters" : [ {
-          "name" : "tipo",
+          "name" : "cod_calle",
           "in" : "query",
-          "description" : "Codigo de la calle en formato string o integer",
+          "description" : "codigo de la calle en formato string o integer",
           "required" : false,
           "style" : "form",
           "explode" : true,
           "schema" : {
             "type" : "string",
-            "default" : "pie",
-            "enum" : [ "auto", "pie", "bici", "transporte" ]
+            "additionalProperties" : {
+              "type" : "integer"
+            }
           }
         }, {
-          "name" : "gml",
+          "name" : "altura",
           "in" : "query",
-          "description" : "Define si se retorna  un gml",
-          "required" : false,
-          "style" : "form",
-          "explode" : true,
-          "schema" : {
-            "type" : "boolean",
-            "default" : true
-          }
-        }, {
-          "name" : "precargar",
-          "in" : "query",
-          "description" : "Cantidad de registros del resultado con datos precargados.",
+          "description" : "Altura válida correspondiente a cod_calle",
           "required" : false,
           "style" : "form",
           "explode" : true,
           "schema" : {
             "type" : "integer",
-            "default" : 3
+            "format" : "int32"
           }
         }, {
-          "name" : "opciones_caminata",
+          "name" : "cod_calle1",
           "in" : "query",
-          "description" : "distancia en metros dispuesta para caminata.",
-          "required" : false,
-          "style" : "form",
-          "explode" : true,
-          "schema" : {
-            "type" : "integer",
-            "default" : 800
-          }
-        }, {
-          "name" : "opciones_medios_colectivo",
-          "in" : "query",
-          "description" : "Inclusión de lineas de colectivo en el calculo.",
-          "required" : false,
-          "style" : "form",
-          "explode" : true,
-          "schema" : {
-            "type" : "boolean",
-            "default" : true
-          }
-        }, {
-          "name" : "opciones_medios_subte",
-          "in" : "query",
-          "description" : "Inclusión de lineas de subte en el calculo.",
-          "required" : false,
-          "style" : "form",
-          "explode" : true,
-          "schema" : {
-            "type" : "boolean",
-            "default" : true
-          }
-        }, {
-          "name" : "opciones_medios_tren",
-          "in" : "query",
-          "description" : "Inclusión de lineas de subte en el calculo.",
-          "required" : false,
-          "style" : "form",
-          "explode" : true,
-          "schema" : {
-            "type" : "boolean",
-            "default" : true
-          }
-        }, {
-          "name" : "opciones_prioridad",
-          "in" : "query",
-          "description" : "Asignacionde prioridad a ciertas vias.",
+          "description" : "Codigo de la primer calle string o entero",
           "required" : false,
           "style" : "form",
           "explode" : true,
           "schema" : {
             "type" : "string",
-            "default" : "avenidas"
+            "additionalProperties" : {
+              "type" : "integer"
+            }
           }
         }, {
-          "name" : "opciones_incluir_autopistas",
+          "name" : "cod_calle2",
           "in" : "query",
-          "description" : "Inclusión de autopistas en el calculo.",
+          "description" : "Codigo de la segunda calle string o entero",
           "required" : false,
           "style" : "form",
           "explode" : true,
           "schema" : {
-            "type" : "boolean",
-            "default" : true
+            "type" : "string",
+            "additionalProperties" : {
+              "type" : "integer"
+            }
           }
         }, {
-          "name" : "opciones_cortes",
+          "name" : "metodo",
           "in" : "query",
-          "description" : "Recalculo segun cortes.",
+          "description" : "Cadena que determina el metodo opcional para la geocodificacion. Interpolacion - Es el método estándar de geocodificación que utiliza sólo la información disponible en el callejero. La ubicación del punto en el segmento se calcula interpolando la altura en proporción a la longitud del tramo y su rango de alturas total. Puertas - Utiliza informacion de puertas oficiales para ubicar el punto con la maxima precision posible para direcciones correspondientes a puertas oficiales y mejorar la geocodificación de direcciones que no corresponden a puertas oficiales mediante la interpolación entre puertas existentes. Centroide - Este método solo tiene sentido para geocodificar puertas oficiales. La geocodificación devuelta consiste en el centroide de la parcela asociada a la puerta oficial indicada.",
           "required" : false,
           "style" : "form",
           "explode" : true,
           "schema" : {
-            "type" : "boolean",
-            "default" : true
-          }
-        }, {
-          "name" : "max_results",
-          "in" : "query",
-          "description" : "Cantidad maxima de resultados.",
-          "required" : false,
-          "style" : "form",
-          "explode" : true,
-          "schema" : {
-            "type" : "integer",
-            "default" : 15
-          }
-        }, {
-          "name" : "trackVisits",
-          "in" : "query",
-          "description" : "Seguimiento de visitas.",
-          "required" : false,
-          "style" : "form",
-          "explode" : true,
-          "schema" : {
-            "type" : "boolean",
-            "default" : false
-          }
-        }, {
-          "name" : "opciones_max_results",
-          "in" : "query",
-          "description" : "Cantidad maxima de resultados.",
-          "required" : false,
-          "style" : "form",
-          "explode" : true,
-          "schema" : {
-            "type" : "integer",
-            "default" : 15
-          }
-        }, {
-          "name" : "origen",
-          "in" : "query",
-          "description" : "Coordenadas xy de origen. GKBA.Ej. '104493.88241739778%2C102351.13729552574'",
-          "required" : false,
-          "style" : "form",
-          "explode" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "name" : "origen_calles2",
-          "in" : "query",
-          "description" : "Id de la segunda calle integrante de una interseccion",
-          "required" : false,
-          "style" : "form",
-          "explode" : true,
-          "schema" : {
-            "type" : "integer",
-            "default" : 0
-          }
-        }, {
-          "name" : "origen_calles",
-          "in" : "query",
-          "description" : "Id de la primera calle integrante de una interseccion",
-          "required" : false,
-          "style" : "form",
-          "explode" : true,
-          "schema" : {
-            "type" : "integer",
-            "default" : 0
-          }
-        }, {
-          "name" : "origen_calle_altura",
-          "in" : "query",
-          "description" : "Altura de la calle",
-          "required" : false,
-          "style" : "form",
-          "explode" : true,
-          "schema" : {
-            "type" : "integer",
-            "default" : 0
-          }
-        }, {
-          "name" : "destino",
-          "in" : "query",
-          "description" : "Coordenada del destino. GKBA. Ej. '95991.00152015703%2C103041.04021650959'",
-          "required" : false,
-          "style" : "form",
-          "explode" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "name" : "destino_calles2",
-          "in" : "query",
-          "description" : "Id de la segunda calle del cruce del destino.",
-          "required" : false,
-          "style" : "form",
-          "explode" : true,
-          "schema" : {
-            "type" : "integer",
-            "default" : 0
-          }
-        }, {
-          "name" : "destino_calles",
-          "in" : "query",
-          "description" : "Id de la  primera calle del cruce del destino.",
-          "required" : false,
-          "style" : "form",
-          "explode" : true,
-          "schema" : {
-            "type" : "integer",
-            "default" : 0
-          }
-        }, {
-          "name" : "destino_calle_altura",
-          "in" : "query",
-          "description" : "Altura de la calle destino.",
-          "required" : false,
-          "style" : "form",
-          "explode" : true,
-          "schema" : {
-            "type" : "integer",
-            "default" : 0
+            "type" : "string",
+            "enum" : [ "interpolacion", "puertas", "centroide" ]
           }
         } ],
         "responses" : {
@@ -264,7 +92,99 @@
                 "schema" : {
                   "type" : "array",
                   "items" : {
-                    "$ref" : "#/components/schemas/planning"
+                    "$ref" : "#/components/schemas/xy"
+                  }
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "bad input parameter"
+          }
+        }
+      }
+    },
+    "/reversegeocoding" : {
+      "get" : {
+        "tags" : [ "Desarrollo" ],
+        "description" : "Realiza una geocodificación inversa de coordenadas GKBA o WGS84 (formatos grados, minutos, segundos o lat, long flotantes). Ejemplos- x=100000&y=100000 // x=-58.42&y=-34.61 // x=58d24'41.301\"W&y=34d35'40.701\"S\n",
+        "operationId" : "reverseGeocoding",
+        "parameters" : [ {
+          "name" : "x",
+          "in" : "query",
+          "description" : "Coordenada x",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "y",
+          "in" : "query",
+          "description" : "Coordenada y",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "search results matching criteria",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/Reverse"
+                  }
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "bad input parameter"
+          }
+        }
+      }
+    },
+    "/smp" : {
+      "get" : {
+        "tags" : [ "Desarrollo" ],
+        "description" : "Obtiene el SMP dado un código de calle y una altura. Ejemplos - cod_calle=3001&altura=5790\n",
+        "operationId" : "smp",
+        "parameters" : [ {
+          "name" : "cod_calle",
+          "in" : "query",
+          "description" : "Código de la calle",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "integer"
+          }
+        }, {
+          "name" : "altura",
+          "in" : "query",
+          "description" : "Altura válida correspondiente al cod_calle",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "integer"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "search results matching criteria",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/smp"
                   }
                 }
               }
@@ -279,40 +199,86 @@
   },
   "components" : {
     "schemas" : {
-      "planning" : {
+      "smp" : {
         "type" : "object",
         "properties" : {
-          "tiempo" : {
-            "type" : "number",
-            "example" : 26
-          },
-          "destino" : {
+          "smp" : {
             "type" : "string",
-            "example" : "108354.739716,102307.237833"
+            "example" : "60-040-009"
           },
-          "origen" : {
+          "centroide" : {
+            "$ref" : "#/components/schemas/smp_centroide"
+          },
+          "pdamatriz" : {
             "type" : "string",
-            "example" : "102755.149006,101254.229379"
-          },
-          "traveled_distance" : {
-            "type" : "number",
-            "example" : 5985
-          },
-          "services" : {
+            "example" : "10804"
+          }
+        }
+      },
+      "xy" : {
+        "type" : "object",
+        "properties" : {
+          "x" : {
             "type" : "string",
-            "example" : "86"
+            "example" : "101361.266833"
           },
-          "walk" : {
-            "type" : "number",
-            "example" : 431
-          },
-          "type" : {
+          "y" : {
             "type" : "string",
-            "example" : "transporte_publico"
-          },
-          "id" : {
+            "example" : "106764.705012"
+          }
+        }
+      },
+      "Reverse" : {
+        "type" : "object",
+        "properties" : {
+          "parcela" : {
             "type" : "string",
-            "example" : "2019-03-19T113707558014"
+            "example" : "17-086-001B"
+          },
+          "puerta" : {
+            "type" : "string",
+            "example" : "SALGUERO, JERONIMO 88"
+          },
+          "puerta_x" : {
+            "type" : "string",
+            "example" : "103977.780177"
+          },
+          "puerta_y" : {
+            "type" : "string",
+            "example" : "102132.307719"
+          },
+          "calle_alturas" : {
+            "type" : "string",
+            "example" : "SALGUERO, JERONIMO 1-100"
+          },
+          "esquina" : {
+            "type" : "string",
+            "example" : "SALGUERO, JERONIMO y MITRE, BARTOLOME"
+          },
+          "metros_a_esquina" : {
+            "type" : "string",
+            "example" : "31.1"
+          },
+          "altura_par" : {
+            "type" : "string",
+            "example" : "SALGUERO, JERONIMO 82"
+          },
+          "altura_impar" : {
+            "type" : "string",
+            "example" : "SALGUERO, JERONIMO 81"
+          }
+        }
+      },
+      "smp_centroide" : {
+        "type" : "object",
+        "properties" : {
+          "x" : {
+            "type" : "string",
+            "example" : "95569.0705760494"
+          },
+          "y" : {
+            "type" : "string",
+            "example" : "98692.5349999997"
           }
         }
       }
